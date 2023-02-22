@@ -12,18 +12,18 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: carLocationModule
-          uri: http://localhost:8081/
-          predicates:
-            - Path=/car-location-service/**
-        - id: userModule
+        - id: plantModule
           uri: http://localhost:8082/
           predicates:
-            - Path=/userManager/**
-        - id: vehiculeModule
-          uri: http://localhost:8083/
+            - Path=/api/v1/plants/**
+        - id: sensorModule
+          uri: http://localhost:8085/
           predicates:
-            - Path=/api/vehicules/**
+            - Path=/api/v1/sensors/**
+        - id: breakdownModule
+          uri: http://localhost:8084/
+          predicates:
+            - Path=/api/v1/breakdowns/**
         - id: maintenanceModule
           uri: http://localhost:3000/
           predicates:

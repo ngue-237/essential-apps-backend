@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/api/v1/breakdowns', indexRouter);
 app.use('/users', usersRouter);
 eurekaHelper.registerWithEureka("breakdown-service", 8084);
 module.exports = app;
