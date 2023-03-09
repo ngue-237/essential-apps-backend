@@ -11,7 +11,7 @@ const io = require("socket.io")(http);
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-const eurekaHelper = require("./eureka-config");
+//const eurekaHelper = require("./eureka-config");
 
 mongoose.set('strictQuery', false);
 
@@ -41,5 +41,5 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/api/v1/sensors", usersRouter);
 
-eurekaHelper.registerWithEureka("sensor-service", 8085);
+//eurekaHelper.registerWithEureka("sensor-service", 8085);
 module.exports = app;
