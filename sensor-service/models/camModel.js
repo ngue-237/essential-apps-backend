@@ -1,10 +1,10 @@
 const mongoose = require('mongoose'); 
 var Schema = mongoose.Schema; 
 
-var camSensor= new Schema( 
+var CamSensor= new Schema( 
 { 
     name:String,
 } 
 ); 
 
-module.exports = mongoose.model('camSensor', camSensor); 
+module.exports = mongoose.model('camSensor', CamSensor); 

@@ -1,11 +1,11 @@
 const mongoose = require('mongoose'); 
 var Schema = mongoose.Schema; 
 
-   var moistureSensor= new Schema( 
+   var MoistureSensor= new Schema( 
     { 
         name:String,
         value:Number
     } 
    );
 
-   module.exports = mongoose.model('moistureSensor', moistureSensor);    
+   module.exports = mongoose.model('moistureSensor', MoistureSensor);    

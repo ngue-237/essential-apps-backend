@@ -1,6 +1,6 @@
 const mongoose = require('mongoose'); 
 var Schema = mongoose.Schema; 
-var npkSensor= new Schema( 
+var NpkSensor= new Schema( 
     { 
         name:String,
         valueN:Number,
@@ -10,4 +10,4 @@ var npkSensor= new Schema(
     } 
    );
 
-module.exports = mongoose.model('npkSensor', npkSensor); 
+module.exports = mongoose.model('npkSensor', NpkSensor); 
