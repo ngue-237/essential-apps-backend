@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 
-const eurekaHelper = require("./eureka-config");
+// const eurekaHelper = require("./eureka-config");
 var indexRouter = require('./routes/index');
 var panneRouter = require('./routes/panne');
 var usersRouter = require('./routes/users');
@@ -30,5 +30,5 @@ connecter("mongodb://127.0.0.1:27017/", (erreur)=>{
 
 app.use('/api/v1/breakdowns', panneRouter);
 app.use('/users', usersRouter);
-eurekaHelper.registerWithEureka("breakdown-service", 8084);
+// eurekaHelper.registerWithEureka("breakdown-service", 8084);
 module.exports = app;

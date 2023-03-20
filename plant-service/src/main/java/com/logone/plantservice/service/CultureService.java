@@ -2,25 +2,25 @@ package com.logone.plantservice.service;
 
 import  java.util.List;
 
-import com.logone.plantservice.entity.culture;
+import com.logone.plantservice.entity.Culture;
+import com.logone.plantservice.repository.CultureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class cultureService {
+public class CultureService {
 
     @Autowired
-    private  com.logone.plantservice.repository.cultureRepository cultureRepository;
+    private CultureRepository cultureRepository;
 
     //Ajouter une culture
-    public culture addculture(culture culture) {return  cultureRepository.save(culture);}
+    public Culture addculture(Culture culture) {return  cultureRepository.save(culture);}
 
     //Mettre a jour les informations d'une culture
 
-    public culture updateculture(int id, culture newculture) {
+    public Culture updateculture(int id, Culture newculture) {
         if(cultureRepository.findById(id).isPresent()) {
-            culture existingculture = cultureRepository.findById(id).get();
-            existingculture.setType(newculture.getType());
+            Culture existingculture = cultureRepository.findById(id).get();
             existingculture.setNom_plante(newculture.getNom_plante());
 
 
@@ -45,15 +45,15 @@ public class cultureService {
 
     //afficher tous les cultures
 
-    public  List<culture> getculture() {
+    public  List<Culture> getculture() {
         return cultureRepository.findAll();
     }
 
     //Chercher un culture
 
-    public culture findculture(int id) {
+    public Culture findculture(int id) {
         if(cultureRepository.findById(id).isPresent()) {
-            culture existingculture = cultureRepository.findById(id).get();
+            Culture existingculture = cultureRepository.findById(id).get();
             return existingculture;
         }
         else {
