@@ -24,6 +24,7 @@ public class cultureRestAPI {
         return new ResponseEntity<>(cultureService.addculture(culture), HttpStatus.OK);
     }
 
+    
     //Configuration de la methode PUT
     //Execution URL: http://localhost:8282/api/param/search
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

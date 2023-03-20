@@ -20,15 +20,15 @@ public class PlantServiceApplication {
 		SpringApplication.run(PlantServiceApplication.class, args);
 	}
 
-	@RestController
-	class ServiceInstanceRestController{
-		@Autowired
-		private DiscoveryClient discoveryClient;
-
-		@RequestMapping("/service-instances/{applicationName}")
-		public List<ServiceInstance> ServiceInstancesByApplicationName(
-				@PathVariable String applicationName){
-			return this.discoveryClient.getInstances(applicationName);
-		}
-	}
+//	@RestController
+//	class ServiceInstanceRestController{
+//		@Autowired
+//		private DiscoveryClient discoveryClient;
+//
+//		@RequestMapping("/service-instances/{applicationName}")
+//		public List<ServiceInstance> ServiceInstancesByApplicationName(
+//				@PathVariable String applicationName){
+//			return this.discoveryClient.getInstances(applicationName);
+//		}
+//	}
 }

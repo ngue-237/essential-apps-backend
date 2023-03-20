@@ -57,5 +57,5 @@ app.use("/api/v1/npk", npkRouter);
 app.use("/api/v1/npk", npkRouter);
 app.use("/api/v1/moisture", moistureRouter);
 
-eurekaHelper.registerWithEureka("sensor-service", 8085);
+//eurekaHelper.registerWithEureka("sensor-service", 8085);
 module.exports = app;
