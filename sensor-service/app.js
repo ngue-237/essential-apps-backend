@@ -4,12 +4,14 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose= require("mongoose");
 var configDB =require("./configDb/dbConfig.json"); 
+var cors = require('cors');
 // const http = require('http');
 // const server = http.createServer(app);
 // const { Server } = require("socket.io");
 // const io = require("socket.io")(http);
 
 var indexRouter = require("./routes/index");
+var userRouter = require("./routes/user");
 var nodeRouter = require("./routes/node");
 var tempRouter = require("./routes/temp");
 var camRouter = require("./routes/cam");
@@ -44,7 +46,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(cors());
+
 app.use("/", indexRouter);
+app.use("/api/v1/users", userRouter);
 app.use("/api/v1/sensors", nodeRouter);
 app.use("/api/v1/temp", tempRouter);
 app.use("/api/v1/cam", camRouter);
