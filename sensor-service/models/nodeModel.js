@@ -13,7 +13,7 @@ var Node= new Schema(
     cam:[  { type : mongoose.Schema.Types.ObjectId, ref : 'camSensor' }],
     npk:[  { type : mongoose.Schema.Types.ObjectId, ref : 'npkSensor' }],
     moisture:[  { type: mongoose.Schema.Types.ObjectId, ref: 'moistureSensor' }],
-    user:[  { type: mongoose.Schema.Types.ObjectId, ref: 'user' }]
+    user:[ { type: mongoose.Schema.Types.ObjectId, ref: 'user' }  ]
  } 
 ); 
 
