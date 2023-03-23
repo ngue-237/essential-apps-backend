@@ -11,7 +11,7 @@ exports.firstpage =  (req, res, next) => {
 
 /**Node controller */
 exports.getNodeInfo = (req, res) => {
-    Node.find().then(
+    Node.find().populate("temp").populate("npk").populate("moisture").populate("cam").populate("user").then(
       (msg) => {
         res.status(200).json(msg);
       }
