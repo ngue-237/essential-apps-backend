@@ -11,7 +11,7 @@ import com.logone.plantservice.entity.Culture;
 
 
 @RestController
-@RequestMapping(value ="/api/culture" )
+@RequestMapping(value ="/api/v1/plants" )
 public class CultureRestAPI {
 
     @Autowired
@@ -19,7 +19,7 @@ public class CultureRestAPI {
 
 
     //Configuration de la methode POST
-    @PostMapping
+    @PostMapping("/culture")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Culture> createculture(@RequestBody Culture culture) {
         return new ResponseEntity<>(cultureService.addculture(culture), HttpStatus.OK);
@@ -28,7 +28,7 @@ public class CultureRestAPI {
     
     //Configuration de la methode PUT
     //Execution URL: http://localhost:8282/api/param/search
-    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/culture/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Culture> updateculture(@PathVariable(value = "id") int id, @RequestBody Culture culture) {
         return new ResponseEntity<>(cultureService.updateculture(id, culture), HttpStatus.OK);
@@ -36,7 +36,7 @@ public class CultureRestAPI {
 
     //Configuation de la methode Delete
     //Execution URL: http://localhost:8282/api/param/{id}
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/culture/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Culture> deleteculture(@PathVariable(value = "id") int id) {
         cultureService.deleteculture(id);
@@ -46,7 +46,7 @@ public class CultureRestAPI {
     
     //Configuration de la methode GET All
     //Execution URL: http://localhost:8282/api/param/
-    @GetMapping
+    @GetMapping("/culture")
     @ResponseStatus(HttpStatus.OK)
     public List<Culture> getAllculture(){
         return cultureService.getculture();
@@ -57,7 +57,7 @@ public class CultureRestAPI {
     //Configuration de la methode de recherche GET specifique avec PathParam
     //il faut que les noms des methodes ici assurance Resst API) et celles dans paramervice n'aient pas le meme nom, sinon ca degere une erreue de mapping
     //Execution URL: http://localhost:8282/api/param
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/culture/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Culture> searchculture(@PathVariable(value = "id") int id){
         return new ResponseEntity<>(cultureService.findculture(id) , HttpStatus.OK);

@@ -52,15 +52,7 @@ public class CultureService {
     //Chercher un culture
 
     public Culture findculture(int id) {
-        if(cultureRepository.findById(id).isPresent()) {
-            Culture existingculture = cultureRepository.findById(id).get();
-            return existingculture;
-        }
-        else {
-            return null;
-        }
-
-
+        return this.cultureRepository.findById(id).get();
     }
 
 }

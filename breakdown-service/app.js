@@ -1,34 +1,32 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
 
+var mongoose = require("mongoose");
+var config = require("./database/mongodb.json");
 
-// const eurekaHelper = require("./eureka-config");
-var indexRouter = require('./routes/index');
-var panneRouter = require('./routes/panne');
-var usersRouter = require('./routes/users');
-const { connecter } = require('./bd/connect');
+const eurekaHelper = require("./eureka-config");
+var panneRouter = require("./routes/panne");
 
 var app = express();
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-connecter("mongodb://127.0.0.1:27017/", (erreur)=>{
-    if(erreur){
-        console.log("Erreur durant la connexion avec la base de donnée");
-        process.exit(-1);
-    }else{
-        console.log("Connexion avec la base de donnée réussie");
-    }
+const uri = "mongodb://0.0.0.0:27017/breakdown_db";
+mongoose.connect(uri, {
+  useNewUrlParser: true,
 });
 
+mongoose.connection
+  .once("open", () => console.log("connected !"))
+  .on("error", (error) => {
+    console.log("My error", error);
+  });
 
-app.use('/api/v1/breakdowns', panneRouter);
-app.use('/users', usersRouter);
+app.use(logger("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/api/v1/breakdowns", panneRouter);
 // eurekaHelper.registerWithEureka("breakdown-service", 8084);
 module.exports = app;

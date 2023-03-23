@@ -13,7 +13,7 @@ spring:
     gateway:
       routes:
         - id: plantModule
-          uri: http://localhost:8082/
+          uri: http://localhost:8083/
           predicates:
             - Path=/api/v1/plants/**
         - id: sensorModule
@@ -24,7 +24,3 @@ spring:
           uri: http://localhost:8084/
           predicates:
             - Path=/api/v1/breakdowns/**
-        - id: maintenanceModule
-          uri: http://localhost:3000/
-          predicates:
-            - Path=/maintenace/**

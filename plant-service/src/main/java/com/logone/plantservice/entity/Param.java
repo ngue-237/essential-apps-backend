@@ -1,5 +1,6 @@
 package com.logone.plantservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,9 +26,5 @@ public class Param implements Serializable {
     private  double niv_azote;
     private double niv_potasium;
     private  double taux_humidite;
-
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Culture culture;
 
 }
