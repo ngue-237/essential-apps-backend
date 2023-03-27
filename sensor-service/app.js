@@ -3,12 +3,14 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose= require("mongoose");
+const http = require('http').createServer(app);
 var configDB =require("./configDb/dbConfig.json"); 
 var cors = require('cors');
-// const http = require('http');
-// const server = http.createServer(app);
-// const { Server } = require("socket.io");
-// const io = require("socket.io")(http);
+const io = require('socket.io')(http, {
+  cors: {
+    origins: ['http://localhost:4200']
+  }
+});
 
 var indexRouter = require("./routes/index");
 var userRouter = require("./routes/user");
@@ -33,13 +35,26 @@ const connect = mongoose.connect(
 
 var app = express();
 
-// io.on('connection', socket => {
-//     console.log("socket");
-//   }); 
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 
-// app.use((err, req, res, next) => {
-//   return res.json({ errorMessage: err.message });
-// });
+io.on('connection', (socket) => {
+  
+  console.log('a user connected');
+  
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+  
+  socket.on('my message', (msg) => {
+    console.log('message: ' + msg);
+  });
+});
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -53,7 +68,6 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/sensors", nodeRouter);
 app.use("/api/v1/temp", tempRouter);
 app.use("/api/v1/cam", camRouter);
-app.use("/api/v1/npk", npkRouter);
 app.use("/api/v1/npk", npkRouter);
 app.use("/api/v1/moisture", moistureRouter);
 
