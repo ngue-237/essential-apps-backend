@@ -6,6 +6,9 @@ var User= new Schema(
     name:String,
     firstname:String,
     email:String,
+    mdp:String,
+    role:String,
+    tel:Number
 } 
 ); 
 

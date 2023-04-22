@@ -1,8 +1,11 @@
 const Node = require("../models/nodeModel.js");
-const Npk = require("../models/npkModel.js");
+const Ligth = require("../models/ligthModel.js");
 const Moisture = require("../models/moistureModel.js");
 const Cam = require("../models/camModel.js");
 const Temp = require("../models/tempModel.js");
+const Water = require("../models/waterModel.js");
+const Fire = require("../models/fireModel.js");
+const Dht11 = require("../models/dht11Model.js");
 
 exports.firstpage =  (req, res, next) => {
   console.log("hello world")
@@ -11,7 +14,7 @@ exports.firstpage =  (req, res, next) => {
 
 /**Node controller */
 exports.getNodeInfo = (req, res) => {
-    Node.find().populate("temp").populate("npk").populate("moisture").populate("cam").populate("user").then(
+    Node.find().populate("temp").populate("ligth").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").populate("fire").then(
       (msg) => {
         res.status(200).json(msg);
       }
@@ -264,9 +267,9 @@ exports.getOneCam = (req, res, next) => {
     );
    };  
 
-   /**Node controller */
-exports.getNpkInfo = (req, res) => {
-    Npk.find().then(
+   /**Ligth controller */
+exports.getLigthInfo = (req, res) => {
+    Ligth.find().then(
       (msg) => {
         res.status(200).json(msg);
       }
@@ -279,13 +282,13 @@ exports.getNpkInfo = (req, res) => {
     );
   };
 
-exports.createNpk = (req,res) => {
- const  npk = new Npk(req.body);
-  console.log(Npk);
-  npk.save().then(
+exports.createLigth = (req,res) => {
+ const  light = new Ligth(req.body);
+  console.log(Ligth);
+  light.save().then(
     () => {
       res.status(201).json({
-        message: 'Npk saved successfully!'
+        message: 'Light saved successfully!'
       });
     }
   ).catch(
@@ -298,13 +301,13 @@ exports.createNpk = (req,res) => {
     );
 };
 
-exports.updateNpk = (req, res, next) => {
+exports.updateLigth = (req, res, next) => {
 
-    Npk.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+    Ligth.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
-          message: 'Npk updated successfully!'
+          message: 'Ligth updated successfully!'
         });
       }
     ).catch(
@@ -316,11 +319,11 @@ exports.updateNpk = (req, res, next) => {
     );
   };
 
-  exports.deleteNpk = (req, res, next) => {
-    Npk.deleteOne({_id: req.params.id}).then(
+  exports.deleteLigth = (req, res, next) => {
+    Ligth.deleteOne({_id: req.params.id}).then(
       () => {
         res.status(200).json({
-          message: 'Npk Deleted!'
+          message: 'Ligth Deleted!'
         });
       }
     ).catch(
@@ -333,8 +336,8 @@ exports.updateNpk = (req, res, next) => {
   };
 
   
-exports.getOneNpk = (req, res, next) => {
-    Npk.findOne({
+exports.getOneLigth = (req, res, next) => {
+    Ligth.findOne({
       _id: req.params.id
     }).then(
       (msg) => {
@@ -349,6 +352,7 @@ exports.getOneNpk = (req, res, next) => {
     );
    };   
 
+   //Moisture
    exports.getMoistureInfo = (req, res) => {
     Moisture.find().then(
       (msg) => {
@@ -419,6 +423,264 @@ exports.updateMoisture = (req, res, next) => {
   
 exports.getOneMoisture = (req, res, next) => {
     Moisture.findOne({
+      _id: req.params.id
+    }).then(
+      (msg) => {
+        res.status(200).json(msg);
+      }
+    ).catch(
+      (error) => {
+        res.status(404).json({
+          error: error
+        });
+      }
+    );
+   };   
+
+//Water
+
+exports.getWaterInfo = (req, res) => {
+  Water.find().then(
+    (msg) => {
+      res.status(200).json(msg);
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.createWater = (req,res) => {
+const  water = new Water(req.body);
+console.log(Water);
+water.save().then(
+  () => {
+    res.status(201).json({
+      message: 'Water saved successfully!'
+    });
+  }
+).catch(
+  (error) => {
+    res.status(400).json({
+      error: error
+    });
+    console.log(error);
+  }
+  );
+};
+
+exports.updateWater = (req, res, next) => {
+
+  Water.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+    (msg) => {
+      console.log(msg);
+      res.status(201).json({
+        message: 'Water updated successfully!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.deleteWater = (req, res, next) => {
+  Water.deleteOne({_id: req.params.id}).then(
+    () => {
+      res.status(200).json({
+        message: 'Water Deleted!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+
+exports.getOneWater = (req, res, next) => {
+  Water.findOne({
+    _id: req.params.id
+  }).then(
+    (msg) => {
+      res.status(200).json(msg);
+    }
+  ).catch(
+    (error) => {
+      res.status(404).json({
+        error: error
+      });
+    }
+  );
+ };   
+
+ //Dht11
+
+ exports.getDht11Info = (req, res) => {
+  Dht11.find().then(
+    (msg) => {
+      res.status(200).json(msg);
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.createDht11 = (req,res) => {
+const  dht11 = new Dht11(req.body);
+console.log(Dht11);
+dht11.save().then(
+  () => {
+    res.status(201).json({
+      message: 'Dht11 saved successfully!'
+    });
+  }
+).catch(
+  (error) => {
+    res.status(400).json({
+      error: error
+    });
+    console.log(error);
+  }
+  );
+};
+
+exports.updateDht11 = (req, res, next) => {
+
+  Dht11.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+    (msg) => {
+      console.log(msg);
+      res.status(201).json({
+        message: 'Dht11 updated successfully!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+exports.deleteDht11 = (req, res, next) => {
+  Dht11.deleteOne({_id: req.params.id}).then(
+    () => {
+      res.status(200).json({
+        message: 'Dht11 Deleted!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+};
+
+
+exports.getOneDht11 = (req, res, next) => {
+  Dht11.findOne({
+    _id: req.params.id
+  }).then(
+    (msg) => {
+      res.status(200).json(msg);
+    }
+  ).catch(
+    (error) => {
+      res.status(404).json({
+        error: error
+      });
+    }
+  );
+ };   
+
+ //fire
+
+ exports.getFireInfo = (req, res) => {
+    Fire.find().then(
+      (msg) => {
+        res.status(200).json(msg);
+      }
+    ).catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    );
+  };
+
+exports.createFire = (req,res) => {
+ const  fire = new Fire(req.body);
+  console.log(Fire);
+  fire.save().then(
+    () => {
+      res.status(201).json({
+        message: 'Fire saved successfully!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+      console.log(error);
+    }
+    );
+};
+
+exports.updateFire = (req, res, next) => {
+
+    Fire.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+      (msg) => {
+        console.log(msg);
+        res.status(201).json({
+          message: 'Fire updated successfully!'
+        });
+      }
+    ).catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    );
+  };
+
+  exports.deleteFire = (req, res, next) => {
+    Fire.deleteOne({_id: req.params.id}).then(
+      () => {
+        res.status(200).json({
+          message: 'Fire Deleted!'
+        });
+      }
+    ).catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    );
+  };
+
+  
+exports.getOneFire = (req, res, next) => {
+    Fire.findOne({
       _id: req.params.id
     }).then(
       (msg) => {

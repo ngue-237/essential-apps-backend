@@ -6,18 +6,18 @@ var mongoose= require("mongoose");
 const http = require('http').createServer(app);
 var configDB =require("./configDb/dbConfig.json"); 
 var cors = require('cors');
-const io = require('socket.io')(http, {
-  cors: {
-    origins: ['http://localhost:4200']
-  }
-});
+const io = require('socket.io')(); 
+require('./socket/socket')(io)     
 
 var indexRouter = require("./routes/index");
 var userRouter = require("./routes/user");
 var nodeRouter = require("./routes/node");
 var tempRouter = require("./routes/temp");
 var camRouter = require("./routes/cam");
-var npkRouter = require("./routes/npk");
+var ligthRouter = require("./routes/ligth");
+var dht11Router = require("./routes/dht11");
+var fireRouter = require("./routes/fire");
+var waterRouter = require("./routes/water");
 var moistureRouter = require("./routes/moisture");
 const eurekaHelper = require("./eureka-config");
 
@@ -35,25 +35,25 @@ const connect = mongoose.connect(
 
 var app = express();
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
+// io.on('connection', (socket) => {
+//   console.log('a user connected');
+//   socket.on('disconnect', () => {
+//     console.log('user disconnected');
+//   });
+// });
 
-io.on('connection', (socket) => {
+// io.on('connection', (socket) => {
   
-  console.log('a user connected');
+//   console.log('a user connected');
   
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+//   socket.on('disconnect', () => {
+//     console.log('user disconnected');
+//   });
   
-  socket.on('my message', (msg) => {
-    console.log('message: ' + msg);
-  });
-});
+//   socket.on('my message', (msg) => {
+//     console.log('message: ' + msg);
+//   });
+// });
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -68,8 +68,11 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/sensors", nodeRouter);
 app.use("/api/v1/temp", tempRouter);
 app.use("/api/v1/cam", camRouter);
-app.use("/api/v1/npk", npkRouter);
+app.use("/api/v1/fire", fireRouter);
+app.use("/api/v1/water", waterRouter);
+app.use("/api/v1/dht11", dht11Router);
+app.use("/api/v1/ligth", ligthRouter);
 app.use("/api/v1/moisture", moistureRouter);
 
 //eurekaHelper.registerWithEureka("sensor-service", 8085);
-module.exports = app;
+module.exports = {app, io};
