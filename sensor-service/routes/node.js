@@ -9,4 +9,5 @@ router.post("/",controller.createNode);
 router.put("/:id",controller.updateNode);
 router.delete("/:id",controller.deleteNode)
 
+
 module.exports = router;

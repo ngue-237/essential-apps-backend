@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var {app , io}= require('../app');
+var {app}= require('../app');//add io
 var debug = require('debug')('sensor-service:server');
 var http = require('http');
 
@@ -51,8 +51,9 @@ function normalizePort(val) {
 
 /**
  * Attach io with http server.
- */
+ 
  io.attach(server);  
+ */
 
 /**
  * Event listener for HTTP server "error" event.

@@ -1,11 +1,41 @@
 const Node = require("../models/nodeModel.js");
-const Ligth = require("../models/ligthModel.js");
+const Light = require("../models/lightModel.js");
 const Moisture = require("../models/moistureModel.js");
 const Cam = require("../models/camModel.js");
 const Temp = require("../models/tempModel.js");
 const Water = require("../models/waterModel.js");
 const Fire = require("../models/fireModel.js");
 const Dht11 = require("../models/dht11Model.js");
+const arduinoData = require("request");
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const { json } = require("express");
+const { log } = require("console");
+const data= {
+  "dht11":{"temperature":22,"humidity":32},
+  "fireSensor":15,
+  "ligthSensor":18,
+  "soilTemperature":15,
+  "soilMoisture":25,
+  "waterSensor":20,
+  "fan":20,
+  "pump":20
+}
+
+arduinoData({
+   url:"http://192.168.137.195/json",
+   json: true
+ },(err,response, body)=>{
+    const msg= JSON.stringify(body)
+  //  var obj = JSON.parse(msg);
+  //  console.log(obj);
+  //   var keys = Object.keys(obj);
+  // for (var i = 0; i < (keys.length); i++) {
+  //   console.log(obj[keys[i]]);
+  // }
+ });
+
 
 exports.firstpage =  (req, res, next) => {
   console.log("hello world")
@@ -14,7 +44,8 @@ exports.firstpage =  (req, res, next) => {
 
 /**Node controller */
 exports.getNodeInfo = (req, res) => {
-    Node.find().populate("temp").populate("ligth").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").populate("fire").then(
+  
+    Node.find().populate("temp").populate("light").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").then(
       (msg) => {
         res.status(200).json(msg);
       }
@@ -25,6 +56,7 @@ exports.getNodeInfo = (req, res) => {
         });
       }
     );
+  
   };
 
 exports.createNode = (req,res) => {
@@ -55,6 +87,13 @@ exports.updateNode = (req, res, next) => {
         res.status(201).json({
           message: 'node updated successfully!'
         });
+        // this.updateDht11;
+        // this.updateFire;
+        // this.updateLight;
+        // this.updateWater;
+        // this.updateMoisture
+        // this.updateTemp;
+        socket.emit('NodeSocket',Node);
       }
     ).catch(
       (error) => {
@@ -83,9 +122,11 @@ exports.updateNode = (req, res, next) => {
 
   
 exports.getOneNode = (req, res, next) => {
+  io.on('connection',socket=>{
+    console.log("test");
     Node.findOne({
       _id: req.params.id
-    }).then(
+    }).populate("temp").populate("light").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").then(
       (msg) => {
         res.status(200).json(msg);
       }
@@ -96,6 +137,7 @@ exports.getOneNode = (req, res, next) => {
         });
       }
     );
+  })
    };
 
 /**Temp */
@@ -134,7 +176,9 @@ exports.createTemp = (req,res) => {
 
 exports.updateTemp = (req, res, next) => {
 
-    Temp.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+    Temp.findOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
@@ -267,9 +311,9 @@ exports.getOneCam = (req, res, next) => {
     );
    };  
 
-   /**Ligth controller */
-exports.getLigthInfo = (req, res) => {
-    Ligth.find().then(
+   /**Light controller */
+exports.getLightInfo = (req, res) => {
+    Light.find().then(
       (msg) => {
         res.status(200).json(msg);
       }
@@ -282,9 +326,9 @@ exports.getLigthInfo = (req, res) => {
     );
   };
 
-exports.createLigth = (req,res) => {
- const  light = new Ligth(req.body);
-  console.log(Ligth);
+exports.createLight = (req,res) => {
+ const  light = new Light(req.body);
+  console.log(Light);
   light.save().then(
     () => {
       res.status(201).json({
@@ -301,13 +345,14 @@ exports.createLigth = (req,res) => {
     );
 };
 
-exports.updateLigth = (req, res, next) => {
-
-    Ligth.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+exports.updateLight = (req, res, next) => {
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+    Light.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
-          message: 'Ligth updated successfully!'
+          message: 'Light updated successfully!'
         });
       }
     ).catch(
@@ -319,11 +364,11 @@ exports.updateLigth = (req, res, next) => {
     );
   };
 
-  exports.deleteLigth = (req, res, next) => {
-    Ligth.deleteOne({_id: req.params.id}).then(
+  exports.deleteLight = (req, res, next) => {
+    Light.deleteOne({_id: req.params.id}).then(
       () => {
         res.status(200).json({
-          message: 'Ligth Deleted!'
+          message: 'Light Deleted!'
         });
       }
     ).catch(
@@ -336,8 +381,8 @@ exports.updateLigth = (req, res, next) => {
   };
 
   
-exports.getOneLigth = (req, res, next) => {
-    Ligth.findOne({
+exports.getOneLight = (req, res, next) => {
+    Light.findOne({
       _id: req.params.id
     }).then(
       (msg) => {
@@ -387,8 +432,9 @@ exports.createMoisture = (req,res) => {
 };
 
 exports.updateMoisture = (req, res, next) => {
-
-    Moisture.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+    Moisture.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
@@ -473,8 +519,9 @@ water.save().then(
 };
 
 exports.updateWater = (req, res, next) => {
-
-  Water.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+  Water.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
     (msg) => {
       console.log(msg);
       res.status(201).json({
@@ -559,8 +606,9 @@ dht11.save().then(
 };
 
 exports.updateDht11 = (req, res, next) => {
-
-  Dht11.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+  Dht11.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
     (msg) => {
       console.log(msg);
       res.status(201).json({
@@ -645,8 +693,9 @@ exports.createFire = (req,res) => {
 };
 
 exports.updateFire = (req, res, next) => {
-
-    Fire.findOneAndUpdate({_id: req.params.id},req.body,{ new: true }).then(
+  let msg =  JSON.stringify(req.body);
+  let donnee =JSON.parse(msg)
+    Fire.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
