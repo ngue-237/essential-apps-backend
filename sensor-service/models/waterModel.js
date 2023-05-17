@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 
 var WaterSensor= new Schema( 
     { 
-        name:String,
-        value:Number
+        value: Number,
+        time:{hr:String, date:String}
     } 
    ); 
   

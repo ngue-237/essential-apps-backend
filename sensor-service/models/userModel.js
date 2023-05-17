@@ -8,7 +8,8 @@ var User= new Schema(
     email:String,
     mdp:String,
     role:String,
-    tel:Number
+    tel:Number,
+    
 } 
 ); 
 

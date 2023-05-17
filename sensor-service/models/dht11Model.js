@@ -3,9 +3,9 @@ var Schema = mongoose.Schema;
 
 var Dht11Sensor= new Schema( 
     { 
-        name:String,
         temperature:Number,
-        humidity:Number
+        humidity:Number,
+        time:{hr:String, date:String}
     } 
    ); 
   

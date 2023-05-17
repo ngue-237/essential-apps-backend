@@ -1,0 +1,10 @@
+{
+    "dht11":{"temperature":1,"humidity":1},
+    "fireSensor":1,
+    "lightSensor":1,
+    "soilTemperature":1, 
+    "soilMoisture":1,
+    "waterSensor":12,
+    "fan":2,
+    "pump":2
+  }

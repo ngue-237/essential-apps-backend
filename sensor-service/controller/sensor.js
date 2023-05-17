@@ -7,24 +7,42 @@ const Water = require("../models/waterModel.js");
 const Fire = require("../models/fireModel.js");
 const Dht11 = require("../models/dht11Model.js");
 const arduinoData = require("request");
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const http = require('http');
+const socketIO = require('socket.io');
+const app = require('express');
+const server = http.createServer(app);
+const io = socketIO(server);
+var ObjectId = require('mongodb').ObjectID;
 const { json } = require("express");
+const data = require("../Embedded/jsonSensorData.json");
+const mqtt = require('mqtt');
 const { log } = require("console");
-const data= {
-  "dht11":{"temperature":22,"humidity":32},
-  "fireSensor":15,
-  "ligthSensor":18,
-  "soilTemperature":15,
-  "soilMoisture":25,
-  "waterSensor":20,
-  "fan":20,
-  "pump":20
-}
-
+const option = {
+  clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
+  username: 'therese',
+  password: 'therese',
+  clean: true
+};
+const client = mqtt.connect('mqtt://192.168.1.2:1883',option);
+var temp=data['soilTemperature']
+var light=data['lightSensor']
+var water =data['waterSensor']
+var fire = data["fireSensor"]
+var dht11 = data['dht11']
+var dht11Temp = dht11['temperature']
+var dht11Hum = dht11['humidity']
+var fan = data['fan']
+var pump = data['pump']
+var moisture = data['soilMoisture']
+const now = new Date();
+senderMsg="hello esp";
+receiveMsg ='';
+const options = {timeZone: 'Africa/Tunis', hour12: true};
+/*
+*Declaration de l'adr ip du serveur embarqué
+*/ 
 arduinoData({
-   url:"http://192.168.137.195/json",
+   url:"http://192.168.137.105/json",
    json: true
  },(err,response, body)=>{
     const msg= JSON.stringify(body)
@@ -37,6 +55,34 @@ arduinoData({
  });
 
 
+ // Gérer la connexion d'un client Socket.io
+io.on('connection', (socket) => {
+  console.log('Nouvelle connexion Socket.io :', socket.id);
+
+  // Écouter l'événement 'disconnect' lorsque le client se déconnecte
+  socket.on('disconnect', () => {
+    console.log('Déconnexion Socket.io :', socket.id);
+  });
+});
+
+io.emit('node',senderMsg)
+
+//MQTT
+ client.on('connect', function () {
+  console.log('Client MQTT connecté');
+  client.subscribe('esp');
+});
+client.subscribe('esp');
+
+client.on('error', function (error) {
+  console.log('Erreur de connexion:', error);
+  client.reconnect();
+});
+
+client.on('reconnect', function () {
+    console.log('Reconnexion au serveur MQTT...');
+  });
+
 exports.firstpage =  (req, res, next) => {
   console.log("hello world")
   res.send("Hi I'm sensor microservice");
@@ -44,9 +90,10 @@ exports.firstpage =  (req, res, next) => {
 
 /**Node controller */
 exports.getNodeInfo = (req, res) => {
-  
-    Node.find().populate("temp").populate("light").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").then(
+    Node.find().populate("user").then(
       (msg) => {
+        client.publish('server', senderMsg);
+        //client.subscribe('server');
         res.status(200).json(msg);
       }
     ).catch(
@@ -87,13 +134,6 @@ exports.updateNode = (req, res, next) => {
         res.status(201).json({
           message: 'node updated successfully!'
         });
-        // this.updateDht11;
-        // this.updateFire;
-        // this.updateLight;
-        // this.updateWater;
-        // this.updateMoisture
-        // this.updateTemp;
-        socket.emit('NodeSocket',Node);
       }
     ).catch(
       (error) => {
@@ -120,14 +160,136 @@ exports.updateNode = (req, res, next) => {
     );
   };
 
-  
+exports.getNodeTest=(req,res)=>{
+  Node.findOne({
+    _id: req.params.id
+  }).then(
+    msg=>{
+      res.status(200).json(msg);
+      // var test =msg["water"]
+      // console.log(test[1]);
+    }
+  )
+}
+
 exports.getOneNode = (req, res, next) => {
-  io.on('connection',socket=>{
-    console.log("test");
     Node.findOne({
       _id: req.params.id
-    }).populate("temp").populate("light").populate("moisture").populate("cam").populate("user").populate("water").populate("fire").populate("dht11").then(
+    }).then(
       (msg) => {
+        // Faire une requete au microcontroller pour avoir les données
+        client.on('message', function (topic, message) {
+          receiveMsg=message.toString();
+          console.log(receiveMsg);
+       // console.log('Received message on topic:', topic, 'message:', message.toString());
+        });
+        var idFire = [Fire()]
+        var idTemp = [Temp()]
+        var idDht11 = [Dht11()]
+        var idLight = [Light()]
+        var idWater = [Water()]
+        var idMoisture = [Moisture()]
+        idFire.length=0
+        idTemp.length=0
+        idDht11.length=0
+        idLight.length=0
+        idWater.length=0
+        idMoisture.length=0
+        
+        const  new_temp = new Temp({value:temp, time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+        setTimeout(()=>{
+            new_temp.save().then(
+              () => {
+                console.log ('Temp saved successfully!')
+                Temp.find()
+                .then((msg)=>{
+                  idTemp = msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('Temp not saved!')
+              }
+              );
+            const  new_light = new Light({value:light,time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+            new_light.save().then(
+              () => {
+                console.log ('light saved successfully!')
+                Light.find()
+                .then((msg)=>{
+                  idLight= msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('light not saved!')
+              }
+              );
+            const  new_moisture = new Moisture({value:moisture,time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+            new_moisture .save().then(
+              () => {
+                console.log ('moisture saved successfully!')
+                Moisture.find()
+                .then((msg)=>{
+                  idMoisture=  msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('moisture not saved!')
+              }
+              );
+            const  new_water = new Water({value:water,time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+            new_water .save().then(
+              () => {
+                console.log ('water saved successfully!')
+                Water.find()
+                .then((msg)=>{
+                  idWater = msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('water not saved!')
+              }
+              );
+            const  new_dht11 = new Dht11({humidity:dht11Hum,temperature:dht11Temp,time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+            new_dht11 .save().then(
+              () => {
+                console.log ('dht11 saved successfully!')
+                Dht11.find()
+                .then((msg)=>{
+                  idDht11=  msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('dht11 not saved!')
+              }
+              );
+            const  new_fire = new Fire({value:fire,time:{date: now.toLocaleDateString('fr-TN',options),hr:now.toLocaleTimeString('fr-TN',options)}});
+            new_fire .save().then(
+              () => {
+                console.log ('fire saved successfully!')
+                Fire.find()
+                .then((msg)=>{
+                  idFire=  msg.map(({ _id }) => ({ _id }));
+                });
+                }).catch(
+              (error) => {
+                console.log ('fire not saved!')
+              }
+              );
+          },350)
+          setTimeout(()=>{
+           //// Je veux renvoyer le dernier obId dans le tableau
+          Node.findOneAndUpdate({_id: req.params.id},{$set:{fire:idFire,water:idWater,light:idLight,temp:idTemp,dht11:idDht11,moisture:idMoisture,fan:fan, pump:pump}},{ new: true }).then(
+            (msg) => {
+              console.log('node updated successfully!');
+            }
+          ).catch(
+            (error) => {
+              console.log('node not updated !');
+            }
+          );
+        },400)
+        console.log(msg);
+        io.emit('node', msg);
         res.status(200).json(msg);
       }
     ).catch(
@@ -137,8 +299,16 @@ exports.getOneNode = (req, res, next) => {
         });
       }
     );
-  })
-   };
+ };
+
+ client.on('close', function () {
+  console.log('Client MQTT déconnecté');
+});
+
+process.on('SIGINT', function () {
+  client.end();
+  process.exit();
+});
 
 /**Temp */
 exports.getTempInfo = (req, res) => {
@@ -175,12 +345,8 @@ exports.createTemp = (req,res) => {
 };
 
 exports.updateTemp = (req, res, next) => {
-
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-    Temp.findOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+    Temp.findOneAndUpdate({_id: req.params.id},{$set:{value:temp}},{ new: true }).then(
       (msg) => {
-        console.log(msg);
         res.status(201).json({
           message: 'Temp updated successfully!'
         });
@@ -346,9 +512,7 @@ exports.createLight = (req,res) => {
 };
 
 exports.updateLight = (req, res, next) => {
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-    Light.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+  Light.findOneAndUpdate({_id: req.params.id},{$set:{value:light}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
@@ -432,9 +596,7 @@ exports.createMoisture = (req,res) => {
 };
 
 exports.updateMoisture = (req, res, next) => {
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-    Moisture.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+    Moisture.findOneAndUpdate({_id: req.params.id},{$set:{value:moisture}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
@@ -486,9 +648,11 @@ exports.getOneMoisture = (req, res, next) => {
 //Water
 
 exports.getWaterInfo = (req, res) => {
-  Water.find().then(
+  console.log("test");
+  Water.find().exec().then(
     (msg) => {
       res.status(200).json(msg);
+      console.log(msg);
     }
   ).catch(
     (error) => {
@@ -501,7 +665,6 @@ exports.getWaterInfo = (req, res) => {
 
 exports.createWater = (req,res) => {
 const  water = new Water(req.body);
-console.log(Water);
 water.save().then(
   () => {
     res.status(201).json({
@@ -519,9 +682,7 @@ water.save().then(
 };
 
 exports.updateWater = (req, res, next) => {
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-  Water.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+    Water.findOneAndUpdate({_id: req.params.id},{$set:{value:water}},{ new: true }).then(  
     (msg) => {
       console.log(msg);
       res.status(201).json({
@@ -606,9 +767,10 @@ dht11.save().then(
 };
 
 exports.updateDht11 = (req, res, next) => {
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-  Dht11.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+  var dht11 = data['dht11']
+var dht11Temp =data['temperature']
+var dht11Hum = data['Humidity']
+    Dht11.findOneAndUpdate({_id: req.params.id},{$set:{humidity:dht11Hum,temperature:dht11Temp}},{ new: true }).then(
     (msg) => {
       console.log(msg);
       res.status(201).json({
@@ -693,9 +855,7 @@ exports.createFire = (req,res) => {
 };
 
 exports.updateFire = (req, res, next) => {
-  let msg =  JSON.stringify(req.body);
-  let donnee =JSON.parse(msg)
-    Fire.findOneAndUpdatefindOneAndUpdate({_id: req.params.id}, { $set: {value:data['soilTemperature'],name:donnee['name']}},{ new: true }).then(
+    Fire.findOneAndUpdate({_id: req.params.id}, { $set: {value:fire}},{ new: true }).then(
       (msg) => {
         console.log(msg);
         res.status(201).json({
